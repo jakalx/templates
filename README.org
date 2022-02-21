@@ -1,0 +1,5 @@
+#+TITLE: Simple Haskell Template
+
+* Simple Haskell Template
+
+This template repository sets up a simple Haskell project using Nix Fl akes, Hpack, Ormolu, Hlint and validity.
