@@ -1,9 +1,5 @@
-# SPDX-FileCopyrightText: 2021 Serokell <https://serokell.io/>
-#
-# SPDX-License-Identifier: CC0-1.0
-
 {
-  description = "My haskell application";
+  description = "Haskell Nix Template";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
@@ -29,6 +25,15 @@
           };
 
         defaultPackage = self.packages.${system}.${packageName};
+
+        apps = {
+          hello = {
+            type = "app";
+            program = "${self.defaultPackage.${system}}/bin/hello";
+          };
+        };
+
+        defaultApp = self.apps.${system}.hello;
 
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
