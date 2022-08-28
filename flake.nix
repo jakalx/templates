@@ -21,7 +21,7 @@
         jailbreakUnbreak = pkg:
           pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
 
-        packageName = "haskell-nix-template";
+        packageName = "haskell-template";
       in {
         packages.${packageName} = haskellPackages.callCabal2nix packageName self
           rec {
