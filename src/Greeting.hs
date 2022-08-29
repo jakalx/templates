@@ -1,7 +1,6 @@
-module Greeting
-  ( greet,
-  )
-where
+module Greeting (
+    greet,
+) where
 
 greet :: String -> IO ()
 greet = putStrLn
