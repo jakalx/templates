@@ -51,8 +51,12 @@
           };
         };
 
-        devShell = pkgs.mkShell {
+        devShell = haskellPackages.shellFor {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
+
+          packages = p: [ self.defaultPackage.${system} ];
+
+          withHoogle = true;
 
           buildInputs = with pkgs; [
             haskellPackages.haskell-language-server
