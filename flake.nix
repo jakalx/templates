@@ -31,13 +31,15 @@
         defaultPackage = self.packages.${system}.${packageName};
 
         apps = {
+          # run with: nix run #.hello
           hello = {
             type = "app";
             program = "${self.defaultPackage.${system}}/bin/hello";
           };
-        };
 
-        defaultApp = self.apps.${system}.hello;
+          # run with: nix run
+          default = self.apps.${system}.hello;
+        };
 
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
