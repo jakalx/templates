@@ -2,5 +2,10 @@ module Greeting (
     greet,
 ) where
 
-greet :: String -> IO ()
-greet = putStrLn
+import Control.Monad.IO.Class (
+    MonadIO,
+    liftIO,
+ )
+
+greet :: MonadIO m => String -> m ()
+greet = liftIO <$> putStrLn
