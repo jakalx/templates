@@ -12,38 +12,30 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, pre-commit-hooks }:
-    flake-utils.lib.eachDefaultSystem (system:
+    flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
-        haskellPackages = pkgs.haskell.packages.ghc924;
+        overlay = final: prev: {
+          haskell-template = final.callCabal2nix "haskell-template" ./. { };
+        };
 
-        jailbreakUnbreak = pkg:
-          pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
-
-        packageName = "haskell-template";
+        haskellPackages = pkgs.haskell.packages.ghc924.extend overlay;
       in {
-        packages.${packageName} = haskellPackages.callCabal2nix packageName self
-          rec {
-            # Dependency overrides go here
-          };
-
-        defaultPackage = self.packages.${system}.${packageName};
+        packages.default = haskellPackages.haskell-template;
 
         apps = {
-          # run with: nix run #.hello
-          hello = {
+          default = {
             type = "app";
             program = "${self.defaultPackage.${system}}/bin/hello";
           };
-
-          # run with: nix run
-          default = self.apps.${system}.hello;
         };
 
         checks = {
           pre-commit-check = pre-commit-hooks.lib.${system}.run {
             src = ./.;
+            settings = { ormolu.defaultExtensions = [ "GHC2021" ]; };
+            tools.fourmolu = haskellPackages.fourmolu;
             hooks = {
               nixfmt.enable = true;
               fourmolu.enable = true;
@@ -53,23 +45,24 @@
           };
         };
 
-        devShell = haskellPackages.shellFor {
+        devShells.default = haskellPackages.shellFor {
           inherit (self.checks.${system}.pre-commit-check) shellHook;
 
-          packages = p: [ self.defaultPackage.${system} ];
+          packages = p: [ p.haskell-template ];
 
           withHoogle = true;
 
-          buildInputs = with pkgs; [
+          nativeBuildInputs = with pkgs; [
             haskellPackages.haskell-language-server
             haskellPackages.fourmolu
+            haskellPackages.hspec-discover
+            haskellPackages.doctest
             cabal-install
             ghcid
             nixfmt
             hpack
             hlint
           ];
-          inputsFrom = builtins.attrValues self.packages.${system};
         };
       });
 }
